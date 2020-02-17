@@ -14,6 +14,7 @@ class GamesController < ApplicationController
     @attempt = params[:word]
     @letters = params[:letters]
     @exists = word_exists?(@attempt)
+    @points = points(@attempt)
 
     if @attempt.upcase.split("").all? { |i| @letters.include?(i) } && word_exists?(@attempt)
       @response = "Congratulations! #{@attempt.upcase} is a valid English word!"
@@ -32,4 +33,17 @@ class GamesController < ApplicationController
     word = JSON.parse(word_serialized)
     word["found"]
   end
+
+  def points(attempt)
+    url = "https://wagon-dictionary.herokuapp.com/#{attempt}"
+    word_serialized = open(url).read
+    word = JSON.parse(word_serialized)
+    if @attempt.upcase.split("").all? { |i| @letters.include?(i) } && word_exists?(@attempt)
+      word["length"] * word["length"]
+    else
+      return 0
+    end
+  end
+
+
 end
